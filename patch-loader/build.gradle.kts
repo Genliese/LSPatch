@@ -2,6 +2,7 @@ import java.util.Locale
 
 plugins {
     alias(libs.plugins.agp.app)
+    alias(libs.plugins.kotlin)
 }
 
 android {
@@ -26,6 +27,9 @@ android {
         }
     }
     namespace = "org.lsposed.lspatch.loader"
+//    kotlinOptions {
+//        jvmTarget = "17"
+//    }
 }
 
 androidComponents.onVariants { variant ->
@@ -60,6 +64,7 @@ androidComponents.onVariants { variant ->
 }
 
 dependencies {
+    implementation(libs.androidx.core.ktx)
     compileOnly(projects.hiddenapi.stubs)
     implementation(projects.core)
     implementation(projects.hiddenapi.bridge)

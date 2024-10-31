@@ -13,6 +13,7 @@ plugins {
     alias(lspatch.plugins.rikka.tools.refine)
     alias(lspatch.plugins.kotlin.android)
     id("kotlin-parcelize")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {

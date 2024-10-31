@@ -18,6 +18,10 @@ dependencyResolutionManagement {
                 includeGroup("io.github.libxposed")
             }
         }
+        flatDir {
+            dirs("libs")
+        }
+//        maven("https://jitpack.io")
     }
     versionCatalogs {
         create("libs") {

@@ -43,7 +43,14 @@ namespace SandHook {
             if (offset > 0 && base != nullptr) {
                 return reinterpret_cast<T>(static_cast<ElfW(Addr)>((uintptr_t) base + offset - bias));
             } else {
-                return nullptr;
+//                return nullptr;
+                //再用xdl去Hook一下
+                auto symbol_addr = GetSymbolByName(name);
+                if (symbol_addr != NULL) {
+                    return reinterpret_cast<T>(static_cast<ElfW(Addr)>(symbol_addr));
+                } else {
+                    return nullptr;
+                }
             }
         }
 
@@ -79,6 +86,14 @@ namespace SandHook {
         }
 
         ~ElfImg();
+
+        //xdl hook
+    private:
+        std::string file_name_;
+        void *handle_;
+    private:
+        void InitXdl();
+        ElfW(Addr) GetSymbolByName(std::string_view name) const;
 
     private:
         ElfW(Addr) getSymbOffset(std::string_view name, uint32_t gnu_hash, uint32_t elf_hash) const;

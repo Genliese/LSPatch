@@ -52,7 +52,13 @@ namespace lspd {
             symbol_cache->initialized.test_and_set(std::memory_order_relaxed);
             return;
         }
-        symbol_cache->do_dlopen = SandHook::ElfImg("/linker").getSymbAddress(
+        std::string so_name;
+#if defined(__LP64__)
+        so_name = "linker64";
+#else
+        so_name = "linker";
+#endif
+        symbol_cache->do_dlopen = SandHook::ElfImg(so_name).getSymbAddress(
                 "__dl__Z9do_dlopenPKciPK17android_dlextinfoPKv");
         symbol_cache->initialized.test_and_set(std::memory_order_relaxed);
         if (other) {

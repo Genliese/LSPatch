@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include "logging.h"
 #include "elf_util.h"
+#include "xdl.h"
 
 using namespace SandHook;
 
@@ -35,7 +36,8 @@ inline constexpr auto offsetOf(ElfW(Ehdr) *head, ElfW(Off) off) {
             reinterpret_cast<uintptr_t>(head) + off);
 }
 
-ElfImg::ElfImg(std::string_view base_name) : elf(base_name) {
+ElfImg::ElfImg(std::string_view base_name) : elf(base_name), file_name_(base_name) {
+    InitXdl();
     if (!findModuleBase()) {
         base = nullptr;
         return;
@@ -288,4 +290,31 @@ bool ElfImg::findModuleBase() {
 
     base = reinterpret_cast<void *>(load_addr);
     return true;
+}
+
+void ElfImg::InitXdl() {
+    //强制打开
+    const char* name = this->file_name_.data();
+    void *handle = dlopen(name, RTLD_NOW);
+    LOGI("xdl_tag dlopen {} : handle {}", name, (uintptr_t)handle);
+    if (NULL != handle) dlclose(handle);
+
+    // xdl_open XDL_TRY_FORCE_LOAD : XDL_DEFAULT
+    //void *handle = xdl_open(filename, try_force_dlopen ? XDL_TRY_FORCE_LOAD : XDL_DEFAULT);
+    this->handle_ = xdl_open(name, XDL_TRY_FORCE_LOAD);
+    LOGI("xdl_tag xdl_open {} : handle {}", name, (uintptr_t)this->handle_);
+}
+
+ElfW(Addr) ElfImg::GetSymbolByName(std::string_view name) const {
+    // xdl_dsym / xdl_sym
+    size_t symbol_size = 0;
+    auto symbol_name = name.data();
+    void *symbol_addr = xdl_sym(this->handle_, symbol_name, &symbol_size);
+    if (symbol_addr == NULL) {
+        symbol_addr = xdl_dsym(this->handle_, symbol_name, &symbol_size);
+        LOGI("xdl_tag debug {} {} : addr {}, sz {}", this->file_name_.data() , symbol_name, (uintptr_t)symbol_addr, symbol_size);
+    } else {
+        LOGI("xdl_tag {} {} : addr {}, sz {}",this->file_name_.data(), symbol_name, (uintptr_t)symbol_addr, symbol_size);
+    }
+    return reinterpret_cast<ElfW(Addr)>(symbol_addr);
 }

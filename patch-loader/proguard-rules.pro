@@ -24,3 +24,5 @@
 -dontwarn android.content.res.Resources$Theme
 -dontwarn android.content.res.AssetManager
 -dontwarn android.content.res.TypedArray
+
+-keep class org.lsposed.lspatch.util.ModuleLoader { *; }

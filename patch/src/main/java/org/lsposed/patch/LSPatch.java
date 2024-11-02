@@ -95,8 +95,8 @@ public class LSPatch {
 
     private static final String ANDROID_MANIFEST_XML = "AndroidManifest.xml";
     private static final HashSet<String> ARCHES = new HashSet<>(Arrays.asList(
-            "armeabi-v7a",
             "arm64-v8a",
+            "armeabi-v7a",
             "x86",
             "x86_64"
     ));
@@ -272,6 +272,9 @@ public class LSPatch {
                 for (String arch : ARCHES) {
                     String entryName = "assets/lspatch/so/" + arch + "/liblspatch.so";
                     try (var is = getClass().getClassLoader().getResourceAsStream(entryName)) {
+                        if (is == null) {
+                            logger.e("Failed to load native lib for " + entryName);
+                        }
                         dstZFile.add(entryName, is, false); // no compress for so
                     } catch (Throwable e) {
                         // More exception info

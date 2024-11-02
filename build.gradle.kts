@@ -104,6 +104,7 @@ fun Project.configureBaseExtension() {
                 cmake {
                     arguments += "-DEXTERNAL_ROOT=${File(rootDir.absolutePath, "core/external")}"
                     arguments += "-DCORE_ROOT=${File(rootDir.absolutePath, "core/core/src/main/jni")}"
+//                    abiFilters("arm64-v8a")
                     abiFilters("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
                     val flags = arrayOf(
                         "-Wall",
@@ -202,6 +203,7 @@ fun Project.configureBaseExtension() {
                 "intermediates",
                 "optimized_processed_res",
                 "release",
+                "optimizeReleaseResources",
                 "resources-release-optimize.ap_"
             )
             val optimized = File("${zip}.opt")
